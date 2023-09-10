@@ -1,0 +1,15 @@
+docker build . (docker build . -f appDockerfile.txt)
+docker-compose build
+docker-compose run --rm app sh -c "flake8"
+docker-compose run --rm app sh -c "django-admin startproject app ."
+docker-compose up
+
+
+Configuring GitHub Actions :
+create folder ".gitub" into root
+create folder "workflows" into ".gitub"
+create file in checks.yml
+execute command:
+    git add .
+    git commit -am "Added GitHub Actions."
+    git push origin
