@@ -1,3 +1,14 @@
+setup respositry git hub (video 02, folder:05 - Project Setup):
+    1. create respository
+    2. New Access Token from hub.docker
+    3. github --> Settings>Secrets>Actions> New Action Secrets
+        Name: DOCKERHUB_USER
+        value : (hub.docker Username : alikaramali)
+    4. github --> Settings>Secrets>Actions> New Action Secrets
+        Name: DOCKERHUB_TOKEN
+        value : token from hub.docker
+    
+
 docker build . (docker build . -f appDockerfile.txt)
 docker-compose build
 docker-compose run --rm app sh -c "flake8"
