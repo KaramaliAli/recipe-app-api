@@ -14,7 +14,10 @@ docker-compose build
 docker-compose run --rm app sh -c "flake8"
 docker-compose run --rm app sh -c "django-admin startproject app ."
 docker-compose up
+docker-compose down
 
+***************** Error in "docker-compose build" **********
+***** add "{"dns": ["192.168.1.163", "8.8.8.8"]}" in this file --> C:\Users\Asus\.docker\daemon.json 
 
 Configuring GitHub Actions :
 create folder ".gitub" into root
@@ -24,3 +27,35 @@ execute command:
     git add .
     git commit -am "Added GitHub Actions."
     git push origin
+
+**** Unit Test ****
+create file "tests.py" into root Project or create folder "tests" and create file "__init__.py"
+Nokte mohem : methodhaye test bayad ba kalame "test" shoro shavand
+run command : docker-compose run --rm app sh -c "python manage.py test"
+
+
+**** Configure Database ****
+set docker-compose.yml
+    environment....
+    db.....
+
+set Dockerfile
+    apk add --update --no-cache postgresql-client && \
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        build-base postgresql-dev musl-dev && \
+    ...
+    apk del .tmp-build-deps && \
+
+update requirements.txt ---> add psycopg2
+
+** run this command **
+docker-compose run --rm app sh -c "python manage.py startapp core"
+delete files tests.py, view.py from core
+create folder tests and create file __init__.py
+create folder management and create file __init__.py
+create folder commands inside management and create file __init__.py
+create file "wait_for_db.py" in commands
+create file test_commands.py in tests
+*** check conntect ****
+docker-compose run --rm app sh -c "python manage.py test"
+docker-compose run --rm app sh -c "python manage.py wait_for_db && flake8"
