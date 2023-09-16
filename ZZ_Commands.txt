@@ -1,3 +1,14 @@
+**** visual studio code ***
+file>preferences>settings:
+    Trim Trailing Whitespace (tick zadeh shavad)
+
+
+**** Docker command *****
+docker volume ls
+** agar dar migrate kardan error khordim volume ra remove mikonim **
+docker volume rm recipe-app-api_dev-db-data
+
+*************** START PROJECT ***************
 setup respositry git hub (video 02, folder:05 - Project Setup):
     1. create respository
     2. New Access Token from hub.docker
@@ -7,7 +18,7 @@ setup respositry git hub (video 02, folder:05 - Project Setup):
     4. github --> Settings>Secrets>Actions> New Action Secrets
         Name: DOCKERHUB_TOKEN
         value : token from hub.docker
-    
+
 
 docker build . (docker build . -f appDockerfile.txt)
 docker-compose build
@@ -17,7 +28,7 @@ docker-compose up
 docker-compose down
 
 ***************** Error in "docker-compose build" **********
-***** add "{"dns": ["192.168.1.163", "8.8.8.8"]}" in this file --> C:\Users\Asus\.docker\daemon.json 
+***** add "{"dns": ["192.168.1.163", "8.8.8.8"]}" in this file --> C:\Users\Asus\.docker\daemon.json
 
 Configuring GitHub Actions :
 create folder ".gitub" into root
@@ -26,6 +37,8 @@ create file in checks.yml
 execute command:
     git add .
     git commit -am "Added GitHub Actions."
+        ** git commit --> type description
+            * press Esc and type :wq
     git push origin
 
 **** Unit Test ****
@@ -59,3 +72,96 @@ create file test_commands.py in tests
 *** check conntect ****
 docker-compose run --rm app sh -c "python manage.py test"
 docker-compose run --rm app sh -c "python manage.py wait_for_db && flake8"
+
+*** migrate ***
+docker-compose run --rm app sh -c "python manage.py makemigrations"
+docker-compose run --rm app sh -c "python manage.py wait_for_db && python manage.py migrate"
+
+*** create super user ***
+docker-compose run --rm app sh -c "python manage.py createsuperuser"
+
+
+******* create project User *************
+docker-compose run --rm app sh -c "python manage.py startapp user"
+    delete folder migrations
+    delete admin.py, models.py, test.py
+    create folder "tests" & file "__init__.py"
+    update core/admin.py
+
+******* create project recipe *************
+docker-compose run --rm app sh -c "python manage.py startapp recipe"
+    delete folder migrations
+    delete admin.py, models.py, test.py
+    create folder "tests" & file "__init__.py"
+    update core/admin.py
+
+******* Add Image-handling *************
+    add to DockerFile  jpeg-dev
+    add to DockerFile  zlib zlib-dev
+    add to requiremetns.txt Pillow>=9.1.0,<9.2
+    docker-compose build
+    add to DockerFile
+        mkdir -p /vol/web/media && \
+        mkdir -p /vol/web/static && \
+        chown -R django-user:django-user /vol && \
+        chmod -R 755 /vol
+    docker-compose build
+
+    add to docker-compose.yml --> to section volumes: "dev-static-data:"
+    add to docker-compose.yml --> to section services - volumes: "- dev-static-data:/vol/web"
+
+    change "settings" file: "STATIC_URL = '/static/'" to :
+        STATIC_URL = '/static/static/'
+        MEDIA_URL = '/static/media/'
+
+        MEDIA_ROOT = '/vol/web/media'
+        STATIC_ROOT = '/vol/web/static'
+
+        SPECTACULAR_SETTINGS = {
+            'COMPONENT_SPLIT_REQUEST': True,
+        }
+
+    add to app/urls.py
+        from django.conf.urls.static import static
+        from django.conf import settings
+
+        if settings.DEBUG:
+        urlpatterns += static(
+            settings.MEDIA_URL,
+            document_root=settings.MEDIA_ROOT,
+        )
+
+
+    add method "test_recipe_file_name_uuid" to core/texts/test_models.py
+    add to core/models.py
+        import uuid
+        import os
+        def recipe_image_file_path
+        add filed "image" to Recipe
+
+    "recipe/tests/test_recipe_api.py" add class "ImageUploadTests"
+    "recipe/serializer.py" add class "RecipeImageSerializer"
+
+    "recipe/views.py"
+        from rest_framework import (... status ...)
+        from rest_framework.decorators import action
+        from rest_framework.response import Response
+
+        add :
+            elif self.action == 'upload_image':
+             return serializers.RecipeImageSerializer
+
+             to ---> "get_serializer_class"
+
+        add def "upload_image"
+
+
+
+******* Add Filtering *************
+    add to recipe.py :
+        from drf_spectacular.utils import (
+            extend_schema_view,
+            extend_schema,
+            OpenApiParameter,
+            OpenApiTypes,
+        )
